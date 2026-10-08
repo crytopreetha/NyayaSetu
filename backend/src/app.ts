@@ -17,14 +17,12 @@ import { requireRole } from './middleware/role.middleware.js';
 export const app = express();
 
 // ── Security + Parsing middleware ─────────────────────────────────────────────
-app.use(helmet());
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(
   cors({
-    origin: process.env.NODE_ENV === 'production'
-      ? ['https://nyayasetu.app']
-      : ['http://localhost:5173', 'http://localhost:3000'],
+    origin: true, // Dynamically reflects request origin to allow localhost, Vercel deployments, etc.
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-User-Id', 'X-User-Role'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-User-Id', 'X-User-Role', 'Accept'],
     credentials: true,
   })
 );

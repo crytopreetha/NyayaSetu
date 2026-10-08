@@ -27,15 +27,23 @@ export const LawyerLoginPage: React.FC = () => {
     try {
       await loginLawyer(email, password);
       navigate(from, { replace: true });
-    } catch (err) {
+    } catch (err: any) {
       if (err instanceof ApiError) {
         setError(err.message);
+      } else if (err?.message?.includes('fetch') || err?.name === 'TypeError') {
+        setError('Cannot reach server. Please ensure backend is running or wait for connection.');
       } else {
-        setError(t('auth.wrongCredentials'));
+        setError(err?.message || t('auth.wrongCredentials'));
       }
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleQuickFill = (demoEmail: string) => {
+    setEmail(demoEmail);
+    setPassword('Password123');
+    setError('');
   };
 
   return (
@@ -146,8 +154,27 @@ export const LawyerLoginPage: React.FC = () => {
             </button>
           </form>
 
+          {/* Quick Demo Access */}
+          <div className="mt-5 p-3.5 bg-slate-800/40 border border-slate-700/60 rounded-xl">
+            <p className="text-xs font-semibold text-amber-400 mb-2 flex items-center gap-1.5">
+              <span>⚡</span> Quick Demo Login (Click to fill):
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => handleQuickFill('adv.priya.sharma@example.com')}
+                className="px-2.5 py-1 text-xs bg-slate-700/70 hover:bg-indigo-900/60 hover:border-indigo-500/50 border border-slate-600/50 text-slate-200 rounded-lg transition"
+              >
+                ⚖️ Adv. Priya Sharma (Verified Lawyer)
+              </button>
+            </div>
+            <p className="text-[11px] text-slate-400 mt-1.5">
+              Password: <code className="text-amber-300 font-mono">Password123</code>
+            </p>
+          </div>
+
           {/* Footer */}
-          <div className="mt-6 text-center space-y-2 text-sm text-slate-400">
+          <div className="mt-5 text-center space-y-2 text-sm text-slate-400">
             <p>
               {t('auth.newLawyerReg')}{' '}
               <Link to="/lawyer/register" className="text-indigo-400 hover:text-indigo-300 font-medium">

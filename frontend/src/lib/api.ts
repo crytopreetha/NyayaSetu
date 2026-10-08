@@ -3,7 +3,8 @@
  * Wraps fetch with base URL, auth token injection, and error normalization.
  */
 
-const BASE_URL = `${import.meta.env.VITE_API_BASE_URL || 'https://nyayasetu-rbn8.onrender.com'}/api`;
+const rawBaseUrl = (import.meta.env.VITE_API_BASE_URL || 'https://nyayasetu-rbn8.onrender.com').replace(/\/+$/, '');
+const BASE_URL = rawBaseUrl.endsWith('/api') ? rawBaseUrl : `${rawBaseUrl}/api`;
 
 export class ApiError extends Error {
   constructor(
