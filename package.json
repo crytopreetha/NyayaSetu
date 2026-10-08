@@ -1,0 +1,26 @@
+{
+  "name": "nyayasetu",
+  "version": "0.1.0",
+  "description": "Citizen-Focused Multilingual Legal Assistance Platform",
+  "private": true,
+  "scripts": {
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "build:backend": "npm --prefix backend run build",
+    "build:frontend": "npm --prefix frontend run build",
+    "typecheck:backend": "npm --prefix backend run typecheck",
+    "typecheck:frontend": "npm --prefix frontend run typecheck",
+    "db:migrate": "npm --prefix backend run db:migrate",
+    "db:seed": "npm --prefix backend run db:seed",
+    "db:test": "npm --prefix backend run db:test"
+  },
+  "keywords": [
+    "legaltech",
+    "ai",
+    "bhashini",
+    "gemini",
+    "india"
+  ],
+  "author": "NyayaSetu Team",
+  "license": "UNLICENSED"
+}
