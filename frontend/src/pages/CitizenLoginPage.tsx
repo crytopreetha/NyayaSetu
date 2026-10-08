@@ -2,10 +2,13 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Scale, Mail, Lock, AlertCircle, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { ApiError } from '../lib/api';
+import { LanguageSelector } from '../components/LanguageSelector';
 
 export const CitizenLoginPage: React.FC = () => {
   const { loginCitizen } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -28,7 +31,7 @@ export const CitizenLoginPage: React.FC = () => {
       if (err instanceof ApiError) {
         setError(err.message);
       } else {
-        setError('Something went wrong. Please try again.');
+        setError(t('auth.wrongCredentials'));
       }
     } finally {
       setLoading(false);
@@ -44,15 +47,20 @@ export const CitizenLoginPage: React.FC = () => {
       </div>
 
       <div className="relative w-full max-w-md">
+        {/* Language switcher — top right */}
+        <div className="flex justify-end mb-4">
+          <LanguageSelector variant="dropdown" />
+        </div>
+
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-900 to-indigo-700 shadow-2xl shadow-blue-900/40 mb-4">
             <Scale className="w-8 h-8 text-amber-300" />
           </div>
           <h1 className="text-2xl font-extrabold text-white tracking-tight">
-            Citizen Portal
+            {t('auth.citizenPortalTitle')}
           </h1>
-          <p className="text-slate-400 text-sm mt-1">Sign in to your NyayaSetu account</p>
+          <p className="text-slate-400 text-sm mt-1">{t('auth.citizenPortalSub')}</p>
         </div>
 
         {/* Card */}
@@ -68,7 +76,7 @@ export const CitizenLoginPage: React.FC = () => {
             {/* Email */}
             <div className="space-y-1.5">
               <label htmlFor="citizen-email" className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
-                Email Address
+                {t('auth.emailLabel')}
               </label>
               <div className="relative">
                 <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
@@ -87,7 +95,7 @@ export const CitizenLoginPage: React.FC = () => {
             {/* Password */}
             <div className="space-y-1.5">
               <label htmlFor="citizen-password" className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
-                Password
+                {t('auth.passwordLabel')}
               </label>
               <div className="relative">
                 <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
@@ -119,12 +127,15 @@ export const CitizenLoginPage: React.FC = () => {
               className="w-full bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-600 hover:to-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-xl px-4 py-3 text-sm flex items-center justify-center gap-2 transition-all shadow-lg shadow-blue-900/30"
             >
               {loading ? (
-                <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
-                </svg>
+                <>
+                  <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                  </svg>
+                  {t('auth.signingIn')}
+                </>
               ) : (
-                <>Sign In <ArrowRight className="w-4 h-4" /></>
+                <>{t('auth.signIn')} <ArrowRight className="w-4 h-4" /></>
               )}
             </button>
           </form>
@@ -132,15 +143,15 @@ export const CitizenLoginPage: React.FC = () => {
           {/* Footer links */}
           <div className="mt-6 text-center space-y-2 text-sm text-slate-400">
             <p>
-              Don't have an account?{' '}
+              {t('auth.noAccount')}{' '}
               <Link to="/register" className="text-blue-400 hover:text-blue-300 font-medium">
-                Create account
+                {t('auth.createAccount')}
               </Link>
             </p>
             <p>
-              Are you a lawyer?{' '}
+              {t('auth.areYouLawyer')}{' '}
               <Link to="/lawyer/login" className="text-indigo-400 hover:text-indigo-300 font-medium">
-                Lawyer Portal →
+                {t('auth.lawyerPortalLink')}
               </Link>
             </p>
           </div>

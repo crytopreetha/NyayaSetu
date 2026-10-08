@@ -28,7 +28,8 @@ import type {
 
 // ── Constants ───────────────────────────────────────────────────────────────
 
-const GEMINI_MODEL = 'gemini-2.0-flash';
+const GEMINI_MODEL = 'gemini-2.5-flash';
+const FALLBACK_MODEL = 'gemini-1.5-flash';
 const MAX_INPUT_CHARS = 100_000;
 const REQUEST_TIMEOUT_MS = 120_000; // 2 minutes
 
@@ -80,23 +81,37 @@ export class GeminiService {
     const genAI = new GoogleGenAI({ apiKey: env.GEMINI_API_KEY });
 
     try {
-      const response = await Promise.race([
-        genAI.models.generateContent({
-          model: GEMINI_MODEL,
-          contents: userPrompt,
-          config: {
-            systemInstruction,
-            temperature: 0.2,
-            topP: 0.8,
-            topK: 40,
-            maxOutputTokens: 8192,
-            responseMimeType: 'application/json',
-          },
-        }),
-        new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error('Gemini API request timed out after 2 minutes.')), REQUEST_TIMEOUT_MS)
-        ),
-      ]);
+      const callModel = async (modelName: string) => {
+        return Promise.race([
+          genAI.models.generateContent({
+            model: modelName,
+            contents: userPrompt,
+            config: {
+              systemInstruction,
+              temperature: 0.2,
+              topP: 0.8,
+              topK: 40,
+              maxOutputTokens: 8192,
+              responseMimeType: 'application/json',
+            },
+          }),
+          new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error('Gemini API request timed out after 2 minutes.')), REQUEST_TIMEOUT_MS)
+          ),
+        ]);
+      };
+
+      let response: any;
+      try {
+        response = await callModel(GEMINI_MODEL);
+      } catch (firstErr: any) {
+        if (firstErr?.message?.includes('not found') || firstErr?.message?.includes('404') || firstErr?.message?.includes('no longer available')) {
+          logger.warn(`GeminiService: Model ${GEMINI_MODEL} failed, falling back to ${FALLBACK_MODEL}`);
+          response = await callModel(FALLBACK_MODEL);
+        } else {
+          throw firstErr;
+        }
+      }
 
       // ── Extract text response ─────────────────────────────────────────
       const rawText = response.text?.trim();

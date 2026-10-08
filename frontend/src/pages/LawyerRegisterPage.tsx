@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Briefcase, Mail, Lock, User, Phone, AlertCircle, Eye, EyeOff, MapPin, Star } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { ApiError } from '../lib/api';
+import { LanguageSelector } from '../components/LanguageSelector';
 
 const SPECIALIZATIONS = [
   'Civil', 'Criminal', 'Family Law', 'Property', 'Labour', 'Constitutional',
@@ -20,6 +22,7 @@ const INDIAN_STATES = [
 
 export const LawyerRegisterPage: React.FC = () => {
   const { registerLawyer } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -97,13 +100,18 @@ export const LawyerRegisterPage: React.FC = () => {
       </div>
 
       <div className="relative w-full max-w-xl">
+        {/* Language switcher */}
+        <div className="flex justify-end mb-4">
+          <LanguageSelector variant="dropdown" />
+        </div>
+
         {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-900 to-purple-700 shadow-2xl shadow-indigo-900/40 mb-3">
             <Briefcase className="w-7 h-7 text-amber-300" />
           </div>
-          <h1 className="text-2xl font-extrabold text-white">Advocate Registration</h1>
-          <p className="text-slate-400 text-sm mt-1">Register to provide legal assistance on NyayaSetu</p>
+          <h1 className="text-2xl font-extrabold text-white">{t('register.lawyerTitle')}</h1>
+          <p className="text-slate-400 text-sm mt-1">{t('register.lawyerSub')}</p>
         </div>
 
         <div className="bg-indigo-500/10 border border-indigo-500/30 rounded-xl px-4 py-3 text-xs text-indigo-300 mb-6">

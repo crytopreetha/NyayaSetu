@@ -2,10 +2,13 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Scale, Mail, Lock, User, Phone, AlertCircle, Eye, EyeOff, CheckCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { ApiError } from '../lib/api';
+import { LanguageSelector } from '../components/LanguageSelector';
 
 export const CitizenRegisterPage: React.FC = () => {
   const { registerCitizen } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -82,13 +85,18 @@ export const CitizenRegisterPage: React.FC = () => {
       </div>
 
       <div className="relative w-full max-w-lg">
+        {/* Language switcher */}
+        <div className="flex justify-end mb-4">
+          <LanguageSelector variant="dropdown" />
+        </div>
+
         {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-900 to-indigo-700 shadow-2xl shadow-blue-900/40 mb-3">
             <Scale className="w-7 h-7 text-amber-300" />
           </div>
-          <h1 className="text-2xl font-extrabold text-white">Create Citizen Account</h1>
-          <p className="text-slate-400 text-sm mt-1">Join NyayaSetu to access legal assistance</p>
+          <h1 className="text-2xl font-extrabold text-white">{t('register.citizenTitle')}</h1>
+          <p className="text-slate-400 text-sm mt-1">{t('register.citizenSub')}</p>
         </div>
 
         {/* Card */}
