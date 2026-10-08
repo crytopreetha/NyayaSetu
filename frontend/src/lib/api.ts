@@ -3,7 +3,7 @@
  * Wraps fetch with base URL, auth token injection, and error normalization.
  */
 
-const BASE_URL = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api`;
+const BASE_URL = `${import.meta.env.VITE_API_BASE_URL || 'https://nyayasetu-rbn8.onrender.com'}/api`;
 
 export class ApiError extends Error {
   constructor(
