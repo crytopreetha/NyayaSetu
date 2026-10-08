@@ -31,10 +31,15 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
 
   const currentOption = languages.find((l) => l.code === currentLanguage) || languages[0];
 
-  // 1. Pills variant (ideal for dialogs and detail headers)
+  // 1. Pills variant (ideal for top header bar and dashboards)
   if (variant === 'pills') {
     return (
-      <div className={`inline-flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-semibold ${className}`}>
+      <div className={`inline-flex items-center gap-1 bg-slate-100/90 p-1 rounded-xl border border-slate-200/90 text-xs font-semibold shadow-xs ${className}`}>
+        {showIcon && (
+          <div className="flex items-center pl-1.5 pr-1 text-amber-600" title="Select Site Language">
+            <Globe className="w-3.5 h-3.5" />
+          </div>
+        )}
         {languages.map((lang) => {
           const isActive = currentLanguage === lang.code;
           return (
@@ -42,15 +47,15 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
               key={lang.code}
               type="button"
               onClick={() => setLanguage(lang.code as SupportedLanguage)}
-              className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 rounded-lg transition-all duration-150 flex items-center gap-1.5 ${
                 isActive
-                  ? 'bg-white text-brand-900 shadow-sm font-bold border border-slate-200/60'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                  ? 'bg-[#0f2340] text-amber-300 shadow-sm font-bold border border-[#0f2340]'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/70'
               }`}
               title={`Switch language to ${lang.name}`}
             >
               <span>{lang.nativeName}</span>
-              {isActive && <span className="w-1.5 h-1.5 rounded-full bg-brand-500" />}
+              {isActive && <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />}
             </button>
           );
         })}

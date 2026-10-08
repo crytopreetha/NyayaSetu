@@ -12,6 +12,7 @@ import {
   XAxis, YAxis, Tooltip, CartesianGrid
 } from 'recharts';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import {
   DEMO_CITIZEN_CASES, DEMO_DEADLINES,
   DEMO_CASE_STATUS_CHART, DEMO_CASE_CATEGORY_CHART
@@ -86,6 +87,7 @@ type WorkflowTab = 'new_requests' | 'pending_review' | 'active_cases' | 'complet
 
 export const LawyerDashboardPage: React.FC = () => {
   const { user, logout } = useAuth();
+  const { t, currentLanguage } = useLanguage();
 
   // Navigation tab states
   const [activeTab, setActiveTab] = useState<MainTab>('requests');
@@ -359,32 +361,33 @@ export const LawyerDashboardPage: React.FC = () => {
               <div>
                 <span className="font-extrabold text-xl tracking-tight text-white">NyayaSetu</span>
                 <span className="text-xs ml-1.5 px-2 py-0.5 bg-indigo-500/20 text-indigo-300 font-bold border border-indigo-500/30 rounded">
-                  अधिवक्ता पोर्टल
+                  {currentLanguage === 'hi' ? 'अधिवक्ता पोर्टल' : currentLanguage === 'mr' ? 'वकील पोर्टल' : 'Advocate Workspace'}
                 </span>
               </div>
             </Link>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <div className="hidden sm:flex items-center gap-2 text-xs bg-slate-800/80 border border-slate-700 px-3 py-1.5 rounded-xl">
               <ShieldCheck className="w-4 h-4 text-emerald-400" />
-              <span className="text-slate-300">Bar Council ID:</span>
+              <span className="text-slate-300">{currentLanguage === 'hi' ? 'बार काउंसिल आईडी:' : currentLanguage === 'mr' ? 'बार कौन्सिल आयडी:' : 'Bar Council ID:'}</span>
               <strong className="text-white font-mono">MH/1234/2015</strong>
             </div>
 
-            <LanguageSelector variant="dropdown" className="hidden md:inline-flex" />
+            {/* 3-Language Switcher on Top */}
+            <LanguageSelector variant="pills" showIcon={true} />
 
             {loadingData && (
               <div className="hidden sm:flex items-center gap-1.5 text-[11px] text-indigo-400 font-medium">
                 <RefreshCw className="w-3 h-3 animate-spin" />
-                <span>Syncing...</span>
+                <span>{currentLanguage === 'hi' ? 'समन्वय जारी...' : currentLanguage === 'mr' ? 'समक्रमण सुरू...' : 'Syncing...'}</span>
               </div>
             )}
 
             <div className="flex items-center gap-3 pl-3 border-l border-slate-800">
               <div className="text-right hidden sm:block">
                 <p className="text-xs font-bold text-white">{user?.fullName || 'Adv. Priya Deshmukh'}</p>
-                <p className="text-[11px] text-slate-400">High Court Advocate</p>
+                <p className="text-[11px] text-slate-400">{currentLanguage === 'hi' ? 'उच्च न्यायालय अधिवक्ता' : currentLanguage === 'mr' ? 'उच्च न्यायालय वकील' : 'High Court Advocate'}</p>
               </div>
               <button
                 onClick={logout}
@@ -392,7 +395,7 @@ export const LawyerDashboardPage: React.FC = () => {
                 className="flex items-center gap-1.5 text-slate-400 hover:text-red-400 p-2 rounded-xl hover:bg-slate-800 transition-colors text-xs font-semibold"
               >
                 <LogOut className="w-4 h-4" />
-                <span className="hidden sm:inline">Logout</span>
+                <span className="hidden sm:inline">{t('nav.logout')}</span>
               </button>
             </div>
           </div>

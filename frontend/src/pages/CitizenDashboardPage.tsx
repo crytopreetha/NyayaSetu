@@ -55,11 +55,20 @@ const ScalesIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' })
 
 export const CitizenDashboardPage: React.FC = () => {
   const { user, logout } = useAuth();
-  const { t } = useLanguage();
+  const { t, currentLanguage } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [activeTab, setActiveTab] = useState<Tab>('overview');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const getNavLabel = (id: Tab) => {
+    switch (id) {
+      case 'overview': return t('dashboard.overviewTab');
+      case 'cases': return t('dashboard.casesTab');
+      case 'documents': return t('dashboard.documentsTab');
+      case 'timeline': return t('dashboard.timelineTab');
+    }
+  };
 
   const [docList, setDocList] = useState<any[]>(DEMO_DOCUMENTS);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
@@ -147,14 +156,14 @@ export const CitizenDashboardPage: React.FC = () => {
             </div>
             <div className="mt-3 flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-emerald-500/15 border border-emerald-400/20">
               <ShieldCheck className="w-3 h-3 text-emerald-400 flex-shrink-0" />
-              <span className="text-emerald-400 text-[10px] font-semibold tracking-wide">VERIFIED CITIZEN</span>
+              <span className="text-emerald-400 text-[10px] font-semibold tracking-wide">{t('dashboard.verifiedCitizen')}</span>
             </div>
           </div>
 
           {/* Navigation */}
           <nav className="flex-1 px-4 py-6 space-y-1">
-            <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest px-3 mb-3">Navigation</p>
-            {NAV_ITEMS.map(({ id, label, icon: Icon, badge }) => (
+            <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest px-3 mb-3">{t('dashboard.overviewTab')}</p>
+            {NAV_ITEMS.map(({ id, icon: Icon, badge }) => (
               <button
                 key={id}
                 onClick={() => { setActiveTab(id); setSidebarOpen(false); }}
@@ -165,7 +174,7 @@ export const CitizenDashboardPage: React.FC = () => {
               >
                 <span className="flex items-center gap-3">
                   <Icon className="w-4 h-4" />
-                  {label}
+                  {getNavLabel(id)}
                 </span>
                 {badge && (
                   <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full
@@ -179,8 +188,8 @@ export const CitizenDashboardPage: React.FC = () => {
 
           {/* Language + Logout */}
           <div className="px-4 pb-6 space-y-2 border-t border-white/10 pt-4">
-            <div className="px-3">
-              <LanguageSelector variant="dropdown" className="w-full" />
+            <div className="px-1">
+              <LanguageSelector variant="pills" showIcon={true} className="w-full justify-center" />
             </div>
             <button
               onClick={logout}
@@ -188,7 +197,7 @@ export const CitizenDashboardPage: React.FC = () => {
               className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all"
             >
               <LogOut className="w-4 h-4" />
-              Sign Out
+              {t('nav.logout')}
             </button>
           </div>
         </aside>
@@ -199,27 +208,34 @@ export const CitizenDashboardPage: React.FC = () => {
         <div className="flex-1 flex flex-col min-w-0 overflow-auto">
           {/* ── Top Header Bar ──────────────────────────────────────────────── */}
           <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
-            <div className="px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
+            <div className="px-4 sm:px-6 h-14 flex items-center justify-between gap-2 sm:gap-4">
+              <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                 {/* Mobile menu toggle */}
                 <button
                   onClick={() => setSidebarOpen(true)}
                   className="lg:hidden p-2 rounded-lg text-slate-500 hover:bg-slate-100"
+                  aria-label="Open sidebar"
                 >
                   <Menu className="w-5 h-5" />
                 </button>
 
                 {/* Breadcrumb */}
-                <div className="hidden sm:flex items-center gap-2 text-sm">
+                <div className="hidden sm:flex items-center gap-2 text-sm truncate">
                   <span className="text-slate-400">NyayaSetu</span>
                   <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
-                  <span className="text-slate-700 font-semibold">
-                    {NAV_ITEMS.find(n => n.id === activeTab)?.label}
+                  <span className="text-slate-700 font-semibold truncate">
+                    {getNavLabel(activeTab)}
                   </span>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
+              {/* Top Controls: 3-Language Selector PROMINENTLY ON TOP + Notifications + Date */}
+              <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+                {/* 3 Language Switcher: English | हिन्दी | मराठी */}
+                <div id="top-language-selector" className="flex items-center">
+                  <LanguageSelector variant="pills" showIcon={true} />
+                </div>
+
                 {/* Notifications */}
                 <div className="relative p-2 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 cursor-pointer transition-colors">
                   <Bell className="w-5 h-5" />
@@ -229,7 +245,7 @@ export const CitizenDashboardPage: React.FC = () => {
                 {/* Date badge */}
                 <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-600">
                   <Calendar className="w-3.5 h-3.5 text-[#1e3a5f]" />
-                  {new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
+                  {new Date().toLocaleDateString(currentLanguage === 'hi' ? 'hi-IN' : currentLanguage === 'mr' ? 'mr-IN' : 'en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
                 </div>
               </div>
             </div>
@@ -263,11 +279,11 @@ export const CitizenDashboardPage: React.FC = () => {
 
                 <div className="flex flex-wrap gap-3">
                   <button
-                    onClick={() => alert('Case submission form will open here.')}
+                    onClick={() => alert(currentLanguage === 'hi' ? 'नया मामला दर्ज करने का फ़ॉर्म शीघ्र उपलब्ध होगा।' : currentLanguage === 'mr' ? 'नवीन खटला दाखल करण्याचा अर्ज लवकरच उपलब्ध होईल.' : 'Case submission form will open here.')}
                     className="btn-gold flex items-center gap-2 whitespace-nowrap"
                   >
                     <Plus className="w-4 h-4" />
-                    New Case Filing
+                    {t('dashboard.newCaseFiling')}
                   </button>
                   <div className="px-3 py-2 rounded-lg bg-white/8 border border-white/15 text-xs text-slate-300 flex items-center gap-2">
                     <DemoBadge />
@@ -280,23 +296,23 @@ export const CitizenDashboardPage: React.FC = () => {
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               {[
                 {
-                  icon: Briefcase, label: 'Active Cases', value: activeCasesCount,
-                  sub: '+1 this month', color: 'text-[#1e3a5f]', bg: 'bg-blue-50', border: 'border-blue-100',
+                  icon: Briefcase, label: t('dashboard.activeCases'), value: activeCasesCount,
+                  sub: t('dashboard.activeCasesSub'), color: 'text-[#1e3a5f]', bg: 'bg-blue-50', border: 'border-blue-100',
                   iconBg: 'bg-[#1e3a5f]'
                 },
                 {
-                  icon: AlertTriangle, label: 'Urgent Deadlines', value: urgentDeadlinesCount,
-                  sub: 'Action required', color: 'text-rose-700', bg: 'bg-rose-50', border: 'border-rose-100',
+                  icon: AlertTriangle, label: t('dashboard.upcomingDeadlines'), value: urgentDeadlinesCount,
+                  sub: currentLanguage === 'hi' ? 'कार्रवाई आवश्यक' : currentLanguage === 'mr' ? 'कृती आवश्यक' : 'Action required', color: 'text-rose-700', bg: 'bg-rose-50', border: 'border-rose-100',
                   iconBg: 'bg-rose-600'
                 },
                 {
-                  icon: FileCheck, label: 'AI-Analyzed Docs', value: DEMO_DOCUMENTS.length,
-                  sub: '100% verified', color: 'text-emerald-700', bg: 'bg-emerald-50', border: 'border-emerald-100',
+                  icon: FileCheck, label: t('dashboard.caseDocuments'), value: DEMO_DOCUMENTS.length,
+                  sub: currentLanguage === 'hi' ? '100% सत्यापित' : currentLanguage === 'mr' ? '100% प्रमाणित' : '100% verified', color: 'text-emerald-700', bg: 'bg-emerald-50', border: 'border-emerald-100',
                   iconBg: 'bg-emerald-600'
                 },
                 {
-                  icon: Scale, label: 'Assigned Advocates', value: 1,
-                  sub: 'Bar Council verified', color: 'text-amber-700', bg: 'bg-amber-50', border: 'border-amber-100',
+                  icon: Scale, label: t('dashboard.assignedCounsel'), value: 1,
+                  sub: currentLanguage === 'hi' ? 'बार काउंसिल सत्यापित' : currentLanguage === 'mr' ? 'बार कौन्सिल प्रमाणित' : 'Bar Council verified', color: 'text-amber-700', bg: 'bg-amber-50', border: 'border-amber-100',
                   iconBg: 'bg-amber-600'
                 },
               ].map(({ icon: Icon, label, value, sub, color, iconBg, border }) => (
@@ -321,13 +337,13 @@ export const CitizenDashboardPage: React.FC = () => {
                 </div>
                 <div>
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="text-sm font-bold text-amber-900">Action Required: File Written Objection</h3>
+                    <h3 className="text-sm font-bold text-amber-900">{t('dashboard.actionRequiredTitle')}</h3>
                     <span className="text-[10px] bg-red-100 text-red-700 px-2 py-0.5 rounded font-bold border border-red-200">
-                      12 Days Left
+                      {t('dashboard.daysLeft')}
                     </span>
                   </div>
                   <p className="text-xs text-amber-800/80 mt-0.5">
-                    Case <strong className="font-mono">NS-2026-00142</strong> — Adv. Priya Deshmukh has prepared the draft. Please sign and review before Oct 20, 2026.
+                    {t('dashboard.actionRequiredDesc', { caseNumber: 'NS-2026-00142' })}
                   </p>
                 </div>
               </div>
@@ -335,13 +351,13 @@ export const CitizenDashboardPage: React.FC = () => {
                 to="/citizen/cases/demo-case-1"
                 className="btn-amber text-xs whitespace-nowrap self-end sm:self-center flex items-center gap-1.5"
               >
-                Review & Sign <ArrowRight className="w-3.5 h-3.5" />
+                {t('dashboard.reviewAndSign')} <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
 
             {/* ── Tab Navigation ────────────────────────────────────────────── */}
             <div className="flex gap-1 bg-white border border-slate-200 rounded-xl p-1 shadow-sm w-fit">
-              {NAV_ITEMS.map(({ id, label, icon: Icon }) => (
+              {NAV_ITEMS.map(({ id, icon: Icon }) => (
                 <button
                   key={id}
                   onClick={() => setActiveTab(id)}
@@ -351,7 +367,7 @@ export const CitizenDashboardPage: React.FC = () => {
                       : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'}`}
                 >
                   <Icon className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">{label}</span>
+                  <span className="hidden sm:inline">{getNavLabel(id)}</span>
                 </button>
               ))}
             </div>
@@ -368,8 +384,8 @@ export const CitizenDashboardPage: React.FC = () => {
                   <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                     <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
                       <div>
-                        <h2 className="font-law font-bold text-slate-900 text-base">Active Legal Cases</h2>
-                        <p className="text-xs text-slate-500 mt-0.5">Track progress, deadlines, and assigned advocates</p>
+                        <h2 className="font-law font-bold text-slate-900 text-base">{t('dashboard.activeLegalCases')}</h2>
+                        <p className="text-xs text-slate-500 mt-0.5">{t('dashboard.trackProgressSub')}</p>
                       </div>
                       <DemoBadge />
                     </div>
@@ -379,7 +395,7 @@ export const CitizenDashboardPage: React.FC = () => {
                         <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
                         <input
                           type="text"
-                          placeholder="Search cases..."
+                          placeholder={t('dashboard.filterCases')}
                           value={searchTerm}
                           onChange={(e) => setSearchTerm(e.target.value)}
                           className="pl-8 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg w-full focus:outline-none focus:border-[#1e3a5f]"
@@ -390,11 +406,11 @@ export const CitizenDashboardPage: React.FC = () => {
                         onChange={(e) => setStatusFilter(e.target.value)}
                         className="text-xs bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-700 focus:outline-none"
                       >
-                        <option value="ALL">All Statuses</option>
-                        <option value="OPEN">Open</option>
-                        <option value="IN_PROGRESS">In Progress</option>
-                        <option value="IN_REVIEW">In Review</option>
-                        <option value="ASSIGNED">Assigned</option>
+                        <option value="ALL">{t('dashboard.allStatuses')}</option>
+                        <option value="OPEN">{t('dashboard.statusOpen')}</option>
+                        <option value="IN_PROGRESS">{t('dashboard.statusInProgress')}</option>
+                        <option value="IN_REVIEW">{t('dashboard.statusInReview')}</option>
+                        <option value="ASSIGNED">{t('dashboard.statusAssigned')}</option>
                       </select>
                     </div>
 
@@ -424,14 +440,14 @@ export const CitizenDashboardPage: React.FC = () => {
                             </div>
                             <div className="flex flex-col items-end gap-2 flex-shrink-0">
                               <span className="text-[10px] text-slate-400">
-                                {new Date(c.updatedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
+                                {new Date(c.updatedAt).toLocaleDateString(currentLanguage === 'hi' ? 'hi-IN' : currentLanguage === 'mr' ? 'mr-IN' : 'en-IN', { day: 'numeric', month: 'short' })}
                               </span>
                               <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#1e3a5f] group-hover:translate-x-0.5 transition-all" />
                             </div>
                           </div>
                           <div className="flex items-center gap-2 mt-2 text-xs text-slate-500">
                             <Award className="w-3.5 h-3.5 text-amber-600" />
-                            <span>Advocate: <strong className="text-slate-700">{c.lawyerName || 'Matching in progress...'}</strong></span>
+                            <span>{t('dashboard.advocateLabel')}: <strong className="text-slate-700">{c.lawyerName || t('case.matching')}</strong></span>
                           </div>
                         </Link>
                       ))}
@@ -442,7 +458,7 @@ export const CitizenDashboardPage: React.FC = () => {
                   <div className="grid md:grid-cols-2 gap-5">
                     <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
                       <div className="flex items-center justify-between mb-4">
-                        <h3 className="font-semibold text-slate-900 text-sm">Case Status Distribution</h3>
+                        <h3 className="font-semibold text-slate-900 text-sm">{t('dashboard.caseStatusDist')}</h3>
                         <DemoBadge />
                       </div>
                       <div className="h-48 w-full">
@@ -474,7 +490,7 @@ export const CitizenDashboardPage: React.FC = () => {
 
                     <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
                       <div className="flex items-center justify-between mb-4">
-                        <h3 className="font-semibold text-slate-900 text-sm">Case Progress Trend</h3>
+                        <h3 className="font-semibold text-slate-900 text-sm">{t('dashboard.caseProgressTrend')}</h3>
                         <DemoBadge />
                       </div>
                       <div className="h-48 w-full">
@@ -506,10 +522,10 @@ export const CitizenDashboardPage: React.FC = () => {
                     <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/60">
                       <div className="flex items-center gap-2">
                         <Calendar className="w-4 h-4 text-[#1e3a5f]" />
-                        <h3 className="font-semibold text-slate-900 text-sm">Upcoming Deadlines</h3>
+                        <h3 className="font-semibold text-slate-900 text-sm">{t('dashboard.upcomingDeadlines')}</h3>
                       </div>
                       <span className="text-xs bg-red-100 text-red-700 font-bold px-2 py-0.5 rounded-full border border-red-200">
-                        {DEMO_DEADLINES.length} Due
+                        {t('dashboard.dueBadge', { count: DEMO_DEADLINES.length })}
                       </span>
                     </div>
                     <div className="p-4 space-y-2.5">
@@ -521,7 +537,7 @@ export const CitizenDashboardPage: React.FC = () => {
                       onClick={() => setActiveTab('cases')}
                       className="w-full text-center text-xs font-semibold text-[#1e3a5f] hover:text-[#0f2340] py-3 border-t border-slate-100 hover:bg-slate-50 transition-colors"
                     >
-                      View All Court Dates →
+                      {t('dashboard.viewCourtDates')} →
                     </button>
                   </div>
 
@@ -530,10 +546,10 @@ export const CitizenDashboardPage: React.FC = () => {
                     <div className="px-5 py-3 bg-[#0f2340] flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <Scale className="w-4 h-4 text-amber-400" />
-                        <span className="text-xs font-bold text-white uppercase tracking-wider">Legal Counsel</span>
+                        <span className="text-xs font-bold text-white uppercase tracking-wider">{t('dashboard.legalCounsel')}</span>
                       </div>
                       <span className="text-[10px] bg-emerald-500/20 text-emerald-300 font-bold px-2 py-0.5 rounded-full border border-emerald-500/30 flex items-center gap-1">
-                        <ShieldCheck className="w-2.5 h-2.5" /> Verified
+                        <ShieldCheck className="w-2.5 h-2.5" /> {t('case.barVerified')}
                       </span>
                     </div>
                     <div className="p-5 space-y-4">
@@ -547,7 +563,7 @@ export const CitizenDashboardPage: React.FC = () => {
                           <div className="flex items-center gap-1 mt-0.5">
                             <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
                             <span className="text-xs font-semibold text-amber-700">{assignedLawyer.rating}</span>
-                            <span className="text-xs text-slate-400">• {assignedLawyer.experienceYears} yrs exp</span>
+                            <span className="text-xs text-slate-400">• {assignedLawyer.experienceYears} {currentLanguage === 'hi' ? 'वर्ष अनुभव' : currentLanguage === 'mr' ? 'वर्षे अनुभव' : 'yrs exp'}</span>
                           </div>
                         </div>
                       </div>
@@ -565,7 +581,7 @@ export const CitizenDashboardPage: React.FC = () => {
                           to="/citizen/cases/demo-case-1"
                           className="btn-primary text-xs flex-1 text-center py-2.5 flex items-center justify-center gap-1.5"
                         >
-                          <Phone className="w-3.5 h-3.5" /> Message Advocate
+                          <Phone className="w-3.5 h-3.5" /> {t('dashboard.messageAdvocate')}
                         </Link>
                       </div>
                     </div>
@@ -576,9 +592,9 @@ export const CitizenDashboardPage: React.FC = () => {
                     <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/60">
                       <div className="flex items-center gap-2">
                         <Bell className="w-4 h-4 text-slate-600" />
-                        <h3 className="font-semibold text-slate-900 text-sm">Notifications</h3>
+                        <h3 className="font-semibold text-slate-900 text-sm">{t('dashboard.recentNotifications')}</h3>
                       </div>
-                      <span className="text-[11px] text-slate-400">Auto-synced</span>
+                      <span className="text-[11px] text-slate-400">{t('dashboard.autoSynced')}</span>
                     </div>
                     <div className="p-4 space-y-2">
                       {DEMO_NOTIFICATIONS.map((notif) => (
@@ -597,12 +613,12 @@ export const CitizenDashboardPage: React.FC = () => {
               <div className="space-y-5 animate-fade-in">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
-                    <h2 className="font-law text-xl font-bold text-slate-900">All Registered Cases</h2>
-                    <p className="text-xs text-slate-500 mt-0.5">Complete record of submitted legal inquiries and dispute files</p>
+                    <h2 className="font-law text-xl font-bold text-slate-900">{t('dashboard.allRegisteredCases')}</h2>
+                    <p className="text-xs text-slate-500 mt-0.5">{t('dashboard.allRegisteredCasesSub')}</p>
                   </div>
                   <input
                     type="text"
-                    placeholder="Filter by title or number..."
+                    placeholder={t('dashboard.filterCases')}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="px-3 py-2 text-xs bg-white border border-slate-200 rounded-lg w-full sm:w-60 focus:outline-none focus:border-[#1e3a5f]"
@@ -625,24 +641,24 @@ export const CitizenDashboardPage: React.FC = () => {
                         </div>
                         <div className="grid grid-cols-2 gap-2 text-xs">
                           <div className="bg-slate-50 rounded-lg px-3 py-2">
-                            <p className="text-slate-400 text-[10px] uppercase font-semibold">Category</p>
+                            <p className="text-slate-400 text-[10px] uppercase font-semibold">{t('dashboard.category')}</p>
                             <p className="text-slate-800 font-semibold mt-0.5">{c.category}</p>
                           </div>
                           <div className="bg-slate-50 rounded-lg px-3 py-2">
-                            <p className="text-slate-400 text-[10px] uppercase font-semibold">Risk</p>
+                            <p className="text-slate-400 text-[10px] uppercase font-semibold">{t('dashboard.risk')}</p>
                             <div className="mt-0.5">{c.riskLevel && <RiskBadge level={c.riskLevel} />}</div>
                           </div>
                         </div>
                         <div className="pt-3 border-t border-slate-100 flex justify-between items-center">
                           <div className="flex items-center gap-1.5 text-xs text-slate-500">
                             <Award className="w-3.5 h-3.5 text-amber-600" />
-                            <span>{c.lawyerName || 'Unassigned'}</span>
+                            <span>{c.lawyerName || t('dashboard.unassigned')}</span>
                           </div>
                           <Link
                             to={`/citizen/cases/${c.id}`}
                             className="btn-primary text-xs flex items-center gap-1.5 py-2"
                           >
-                            Open Details <ArrowRight className="w-3 h-3" />
+                            {t('dashboard.openDetails')} <ArrowRight className="w-3 h-3" />
                           </Link>
                         </div>
                       </div>
@@ -659,14 +675,14 @@ export const CitizenDashboardPage: React.FC = () => {
               <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden animate-fade-in">
                 <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/60">
                   <div>
-                    <h2 className="font-law font-bold text-slate-900">Legal Document Repository</h2>
-                    <p className="text-xs text-slate-500 mt-0.5">Secure digital repository with AI validation and text extraction</p>
+                    <h2 className="font-law font-bold text-slate-900">{t('dashboard.documentRepo')}</h2>
+                    <p className="text-xs text-slate-500 mt-0.5">{t('dashboard.documentRepoSub')}</p>
                   </div>
                   <button
                     onClick={() => setIsUploadModalOpen(true)}
                     className="btn-primary text-xs flex items-center gap-1.5"
                   >
-                    <Plus className="w-3.5 h-3.5" /> Upload Document
+                    <Plus className="w-3.5 h-3.5" /> {t('btn.uploadDocument')}
                   </button>
                 </div>
 
@@ -691,7 +707,7 @@ export const CitizenDashboardPage: React.FC = () => {
                             <p className="text-xs text-slate-400 mt-0.5">
                               {((doc.fileSize || doc.fileSizeBytes || 0) / 1024 / 1024).toFixed(2)} MB
                               &nbsp;·&nbsp;
-                              {new Date(doc.uploadedAt || doc.createdAt || Date.now()).toLocaleDateString('en-IN')}
+                              {new Date(doc.uploadedAt || doc.createdAt || Date.now()).toLocaleDateString(currentLanguage === 'hi' ? 'hi-IN' : currentLanguage === 'mr' ? 'mr-IN' : 'en-IN')}
                             </p>
                           </div>
                         </div>
@@ -701,7 +717,7 @@ export const CitizenDashboardPage: React.FC = () => {
                               : status === 'FAILED' ? 'bg-rose-50 text-rose-700 border-rose-200'
                               : 'bg-amber-50 text-amber-700 border-amber-200'}`}>
                             {isProcessing ? <RefreshCw className="w-3 h-3 animate-spin" /> : <CheckCircle2 className="w-3 h-3" />}
-                            {status === 'COMPLETED' ? 'AI Analyzed' : status}
+                            {status === 'COMPLETED' ? (currentLanguage === 'hi' ? 'एआई विश्लेषित' : currentLanguage === 'mr' ? 'एआय विश्लेषित' : 'AI Analyzed') : status}
                           </span>
                           <button
                             onClick={(e) => { e.stopPropagation(); setSelectedViewerDoc(doc); }}
@@ -724,8 +740,8 @@ export const CitizenDashboardPage: React.FC = () => {
               <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden animate-fade-in">
                 <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/60 flex items-center justify-between">
                   <div>
-                    <h2 className="font-law font-bold text-slate-900">Case Milestone Timeline</h2>
-                    <p className="text-xs text-slate-500 mt-0.5">Chronological history of filings, hearings, and document reviews</p>
+                    <h2 className="font-law font-bold text-slate-900">{t('dashboard.timelineMilestones')}</h2>
+                    <p className="text-xs text-slate-500 mt-0.5">{t('dashboard.timelineMilestonesSub')}</p>
                   </div>
                   <DemoBadge />
                 </div>
@@ -740,7 +756,7 @@ export const CitizenDashboardPage: React.FC = () => {
                           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-1">
                             <h4 className="font-bold text-sm text-slate-900">{evt.title}</h4>
                             <span className="text-[11px] text-slate-400 flex-shrink-0">
-                              {new Date(evt.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                              {new Date(evt.createdAt).toLocaleDateString(currentLanguage === 'hi' ? 'hi-IN' : currentLanguage === 'mr' ? 'mr-IN' : 'en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                             </span>
                           </div>
                           {evt.description && (
@@ -760,9 +776,9 @@ export const CitizenDashboardPage: React.FC = () => {
             <div className="px-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-400">
               <div className="flex items-center gap-2">
                 <ScalesIcon className="w-4 h-4 text-amber-600" />
-                <span>© 2026 NyayaSetu — नागरिक पोर्टल</span>
+                <span>© 2026 NyayaSetu — {t('nav.citizenPortal')}</span>
               </div>
-              <span className="text-center">Statutory Notice: AI summaries are for guidance only. Consult your verified advocate for legal advice.</span>
+              <span className="text-center">{t('dashboard.statutoryNotice')}</span>
             </div>
           </footer>
         </div>
